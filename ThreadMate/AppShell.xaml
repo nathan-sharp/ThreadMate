@@ -9,6 +9,14 @@
     Shell.TitleColor="Black"
     Shell.ForegroundColor="Black">
 
+    <Shell.ToolbarItems>
+        <ToolbarItem Order="Primary" Priority="0" Clicked="OnSettingsClicked">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource Glyph="⚙" Size="20" Color="Black" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </Shell.ToolbarItems>
+
     <TabBar x:Name="MainTabBar">
         <Tab Title="Tapping">
             <Tab.Icon>
