@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ThreadMate.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:ThreadMate"
+    Title="ThreadMate"
+    Shell.BackgroundColor="{StaticResource Primary}"
+    Shell.TitleColor="Black"
+    Shell.ForegroundColor="Black">
+
+    <TabBar x:Name="MainTabBar">
+        <Tab Title="Tapping Info">
+            <Tab.Icon>
+                <FontImageSource Glyph="⌖" Size="20" />
+            </Tab.Icon>
+            <ShellContent
+                Title="Tapping Info"
+                ContentTemplate="{DataTemplate local:TappingInfoPage}"
+                Route="TappingInfoPage" />
+        </Tab>
+
+        <Tab x:Name="ThreadInfoTab" Title="Thread Info">
+            <Tab.Icon>
+                <FontImageSource Glyph="🔩" Size="20" />
+            </Tab.Icon>
+            <ShellContent
+                Title="Thread Info"
+                ContentTemplate="{DataTemplate local:MainPage}"
+                Route="MainPage" />
+        </Tab>
+
+        <Tab Title="Torque Info">
+            <Tab.Icon>
+                <FontImageSource Glyph="🔧" Size="20" />
+            </Tab.Icon>
+            <ShellContent
+                Title="Torque Info"
+                ContentTemplate="{DataTemplate local:TorqueInfoPage}"
+                Route="TorqueInfoPage" />
+        </Tab>
+    </TabBar>
+
+</Shell>

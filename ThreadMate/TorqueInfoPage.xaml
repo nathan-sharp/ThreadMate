@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ThreadMate.TorqueInfoPage"
+             Title="Torque Info">
+    <ScrollView>
+        <Grid x:Name="TorqueLayoutGrid"
+              Padding="20"
+              RowSpacing="14"
+              ColumnSpacing="14"
+              HorizontalOptions="Center"
+              MaximumWidthRequest="1200">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border x:Name="TorqueHeaderCard" Grid.Row="0" BackgroundColor="Black" StrokeThickness="0" Padding="14">
+                <Label Text="Torque Info" FontSize="28" FontAttributes="Bold" TextColor="White" />
+            </Border>
+
+            <Border x:Name="TorqueInputCard" Grid.Row="1" Padding="14">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Thread Type" FontAttributes="Bold" />
+                    <Picker x:Name="ThreadTypePicker" SelectedIndexChanged="OnThreadTypeChanged" />
+
+                    <Label Text="Thread Size" FontAttributes="Bold" />
+                    <Picker x:Name="ThreadSizePicker" SelectedIndexChanged="OnAnyInputChanged" />
+
+                    <Label Text="Fastener Grade" FontAttributes="Bold" />
+                    <Picker x:Name="GradePicker" SelectedIndexChanged="OnAnyInputChanged" />
+
+                    <Label Text="Condition" FontAttributes="Bold" />
+                    <Picker x:Name="ConditionPicker" SelectedIndexChanged="OnAnyInputChanged" />
+
+                    <Label Text="Target Preload (%)" FontAttributes="Bold" />
+                    <Entry x:Name="PreloadEntry" Keyboard="Numeric" Text="75" Placeholder="e.g. 75" TextChanged="OnPreloadTextChanged" />
+
+                    <Label x:Name="StatusLabel" Text="Select values to calculate recommended torque." FontAttributes="Italic" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="RecommendedCard" Grid.Row="2" Padding="14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Recommended Tightening" FontSize="18" FontAttributes="Bold" />
+                    <Label x:Name="RecommendedTorqueNmLabel" Text="Torque: -" />
+                    <Label x:Name="RecommendedTorqueFtLbLabel" Text="Torque: -" />
+                    <Label x:Name="TorqueRangeLabel" Text="Suggested Working Range (±10%): -" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="SupportingCard" Grid.Row="3" Padding="14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Supporting Dimensions" FontSize="18" FontAttributes="Bold" />
+                    <Label x:Name="NominalDiameterLabel" Text="Nominal Diameter: -" />
+                    <Label x:Name="PitchLabel" Text="Pitch: -" />
+                    <Label x:Name="StressAreaLabel" Text="Tensile Stress Area: -" />
+                    <Label x:Name="ClampLoadLabel" Text="Estimated Clamp Load: -" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="NoteCard" Grid.Row="4" Padding="14">
+                <Label Text="Guidance only. Always confirm with your fastener, material, and manufacturer standards before final torque settings." FontAttributes="Italic" />
+            </Border>
+        </Grid>
+    </ScrollView>
+</ContentPage>

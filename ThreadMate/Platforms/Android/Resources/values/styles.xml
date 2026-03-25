@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  <!-- Base theme for the application. -->
+  <style name="Maui.SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <item name="android:windowSplashScreenAnimatedIcon">@drawable/maui_splash</item>
+    <item name="android:windowSplashScreenIconBackgroundColor">@color/colorPrimary</item>
+    <item name="android:windowSplashScreenBackground">@color/colorPrimary</item>
+    <item name="android:windowLightStatusBar">true</item>
+    <item name="android:windowLightNavigationBar">true</item>
+  </style>
+
+  <style name="MainTheme" parent="Maui.SplashTheme">
+  </style>
+</resources>

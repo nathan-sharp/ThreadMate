@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ThreadMate.TappingInfoPage"
+             Title="Tapping Info">
+    <ScrollView>
+        <Grid x:Name="TappingLayoutGrid"
+              Padding="20"
+              RowSpacing="14"
+              ColumnSpacing="14"
+              HorizontalOptions="Center"
+              MaximumWidthRequest="1320">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border x:Name="TappingHeaderCard" Grid.Row="0" BackgroundColor="Black" StrokeThickness="0" Padding="14">
+                <Label Text="Tapping Info" FontSize="28" FontAttributes="Bold" TextColor="White" />
+            </Border>
+
+            <Border x:Name="SelectorCard" Grid.Row="1" Padding="14">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Thread Type" FontAttributes="Bold" />
+                    <Picker x:Name="ThreadTypePicker" SelectedIndexChanged="OnThreadTypeChanged" />
+
+                    <Label Text="Thread Size" FontAttributes="Bold" />
+                    <Picker x:Name="ThreadSizePicker" SelectedIndexChanged="OnThreadSizeChanged" />
+
+                    <Label x:Name="SelectedThreadSummaryLabel" Text="Select a type and size." FontAttributes="Italic" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="InternalCard" Grid.Row="2" Padding="14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Internal Thread (Tapped Hole)" FontSize="18" FontAttributes="Bold" />
+                    <GraphicsView x:Name="InternalDiagramView" HeightRequest="280" />
+                    <Label x:Name="TapDrillLabel" Text="Tap Drill: -" />
+                    <Label x:Name="ThreadEngagementLabel" Text="Estimated % Thread: -" />
+                    <Label x:Name="InternalMinorDiameterLabel" Text="Internal Minor Diameter (basic): -" />
+                    <Label x:Name="ClearanceCloseLabel" Text="Clearance Hole (Close): -" />
+                    <Label x:Name="ClearanceNormalLabel" Text="Clearance Hole (Normal): -" />
+                    <Label x:Name="ClearanceLooseLabel" Text="Clearance Hole (Loose): -" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="ExternalCard" Grid.Row="3" Padding="14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="External Thread (Bolt)" FontSize="18" FontAttributes="Bold" />
+                    <GraphicsView x:Name="ExternalDiagramView" HeightRequest="280" />
+                    <Label x:Name="ExternalMajorLabel" Text="Major Diameter (nominal): -" />
+                    <Label x:Name="ExternalPitchLabel" Text="Pitch: -" />
+                    <Label x:Name="ExternalPitchDiameterLabel" Text="Pitch Diameter (basic): -" />
+                    <Label x:Name="ExternalMinorDiameterLabel" Text="Minor Diameter (basic): -" />
+                    <Label x:Name="ExternalThreadHeightLabel" Text="Thread Height (theoretical): -" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="512" height="512" rx="88" fill="#FFD400"/>
+  <text x="256" y="290" text-anchor="middle" fill="#000000" font-family="Space Mono, monospace" font-size="170" font-weight="700" letter-spacing="-8">TM</text>
+</svg>
