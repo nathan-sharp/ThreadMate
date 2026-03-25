@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ThreadMate.TappingInfoPage"
-             Title="Tapping Info">
+             Title="Tapping">
     <ScrollView>
         <Grid x:Name="TappingLayoutGrid"
               Padding="20"
@@ -19,7 +19,7 @@
             </Grid.RowDefinitions>
 
             <Border x:Name="TappingHeaderCard" Grid.Row="0" BackgroundColor="Black" StrokeThickness="0" Padding="14">
-                <Label Text="Tapping Info" FontSize="28" FontAttributes="Bold" TextColor="White" />
+                <Label Text="Tapping" FontSize="28" FontAttributes="Bold" TextColor="White" />
             </Border>
 
             <Border x:Name="SelectorCard" Grid.Row="1" Padding="14">

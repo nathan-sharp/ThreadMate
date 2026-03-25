@@ -10,32 +10,32 @@
     Shell.ForegroundColor="Black">
 
     <TabBar x:Name="MainTabBar">
-        <Tab Title="Tapping Info">
+        <Tab Title="Tapping">
             <Tab.Icon>
                 <FontImageSource Glyph="⌖" Size="20" />
             </Tab.Icon>
             <ShellContent
-                Title="Tapping Info"
+                Title="Tapping"
                 ContentTemplate="{DataTemplate local:TappingInfoPage}"
                 Route="TappingInfoPage" />
         </Tab>
 
-        <Tab x:Name="ThreadInfoTab" Title="Thread Info">
+        <Tab x:Name="ThreadInfoTab" Title="Thread">
             <Tab.Icon>
                 <FontImageSource Glyph="🔩" Size="20" />
             </Tab.Icon>
             <ShellContent
-                Title="Thread Info"
+                Title="Thread"
                 ContentTemplate="{DataTemplate local:MainPage}"
                 Route="MainPage" />
         </Tab>
 
-        <Tab Title="Torque Info">
+        <Tab Title="Torque">
             <Tab.Icon>
                 <FontImageSource Glyph="🔧" Size="20" />
             </Tab.Icon>
             <ShellContent
-                Title="Torque Info"
+                Title="Torque"
                 ContentTemplate="{DataTemplate local:TorqueInfoPage}"
                 Route="TorqueInfoPage" />
         </Tab>
