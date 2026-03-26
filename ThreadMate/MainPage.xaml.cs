@@ -114,8 +114,8 @@ namespace ThreadMate
             {
                 MainLayoutGrid.ColumnDefinitions =
                 [
-                    new ColumnDefinition { Width = new GridLength(1.1, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(0.9, GridUnitType.Star) }
+                    new ColumnDefinition { Width = new GridLength(1.0, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(1.0, GridUnitType.Star) }
                 ];
                 MainLayoutGrid.RowDefinitions =
                 [

@@ -8,8 +8,8 @@
               Padding="20"
               RowSpacing="14"
               ColumnSpacing="14"
-              HorizontalOptions="Center"
-              MaximumWidthRequest="1200">
+              HorizontalOptions="Fill"
+              MaximumWidthRequest="1320">
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -20,7 +20,12 @@
             </Grid.RowDefinitions>
 
             <Border x:Name="TorqueHeaderCard" Grid.Row="0" BackgroundColor="Black" StrokeThickness="0" Padding="14">
-                <Label Text="Torque" FontSize="28" FontAttributes="Bold" TextColor="White" />
+                <Label Text="Banner Ad Placeholder"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
             </Border>
 
             <Border x:Name="TorqueInputCard" Grid.Row="1" Padding="14">
