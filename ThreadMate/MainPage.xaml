@@ -54,6 +54,7 @@
             <Border x:Name="ResultsCard" Grid.Row="2" Padding="14" Margin="0,2,0,0">
                 <VerticalStackLayout Spacing="8">
                     <Label x:Name="StatusLabel" Text="Enter values and tap Calculate." FontAttributes="Italic" />
+                    <Label x:Name="FinalThreadDesignationLabel" Text="Thread: -" FontSize="18" FontAttributes="Bold" />
                     <Label x:Name="PitchDiameterLabel" Text="Pitch Diameter: -" />
                     <Label x:Name="MinorDiameterLabel" Text="Minor Diameter: -" />
                     <Label x:Name="ThreadHeightLabel" Text="Thread Height: -" />

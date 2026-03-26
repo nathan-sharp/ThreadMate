@@ -127,6 +127,8 @@ namespace ThreadMate
                 ? $"{size.Label}   ({tpi:F1} TPI)"
                 : size.Label;
 
+            FinalThreadDesignationLabel.Text = $"Thread: {size.Label}";
+
             TapDrillLabel.Text = $"Tap Drill: {FormatLength(tapDrill)}";
             ThreadEngagementLabel.Text = $"Estimated % Thread: {threadPercent:F0}% (with listed tap drill)";
             InternalMinorDiameterLabel.Text = $"Internal Minor Diameter (basic): {FormatLength(internalMinor)}";

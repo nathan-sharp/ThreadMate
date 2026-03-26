@@ -76,7 +76,17 @@ namespace ThreadMate
             var lengthUnit = threadType.LengthUnit;
             var areaUnit = threadType.LengthUnit == "in" ? "in²" : "mm²";
 
+            // Convert to mm for standard thread lookup
+            var majorDiameterMm = threadType.LengthUnit == "in" ? majorDiameter * 25.4 : majorDiameter;
+            var pitchMm = threadType.UsesTpi ? 25.4 / pitchOrTpi : pitchOrTpi;
+            
+            // Find the closest standard thread
+            var closestThread = ThreadStandards.FindClosestThreadSize(threadType.Name, majorDiameterMm, pitchMm);
+            var pitchFormatted = threadType.UsesTpi ? $"{pitchOrTpi:F2} TPI" : $"{pitchOrTpi:F3}mm";
+            var threadDesignation = closestThread?.Label ?? $"{majorDiameter:F3}{lengthUnit} x {pitchFormatted}";
+
             StatusLabel.Text = $"Calculation complete for {threadType.Name}.";
+            FinalThreadDesignationLabel.Text = $"Thread: {threadDesignation}";
             PitchDiameterLabel.Text = $"Pitch Diameter: {pitchDiameter:F3} {lengthUnit}";
             MinorDiameterLabel.Text = $"Minor Diameter: {minorDiameter:F3} {lengthUnit}";
             ThreadHeightLabel.Text = $"Thread Height: {threadHeight:F3} {lengthUnit}";

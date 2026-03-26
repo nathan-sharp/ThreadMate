@@ -36,6 +36,7 @@
                     <Picker x:Name="ThreadSizePicker" SelectedIndexChanged="OnThreadSizeChanged" />
 
                     <Label x:Name="SelectedThreadSummaryLabel" Text="Select a type and size." FontAttributes="Italic" />
+                    <Label x:Name="FinalThreadDesignationLabel" Text="Thread: -" FontSize="18" FontAttributes="Bold" />
                 </VerticalStackLayout>
             </Border>
 
