@@ -58,6 +58,10 @@
 		<MauiImage Include="Resources\Images\*" />
 		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
 		
+		<!-- SVG templates loaded as runtime assets -->
+		<MauiAsset Include="Resources\Images\thread_internal.svg" LogicalName="thread_internal.svg" />
+		<MauiAsset Include="Resources\Images\thread_external.svg" LogicalName="thread_external.svg" />
+
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
 

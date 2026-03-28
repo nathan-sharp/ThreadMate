@@ -1,12 +1,7 @@
-using Microsoft.Maui.Graphics;
-
 namespace ThreadMate
 {
     public partial class TappingInfoPage : ContentPage
     {
-        private readonly ThreadProfileDrawable _internalDrawable = new(true);
-        private readonly ThreadProfileDrawable _externalDrawable = new(false);
-
         private readonly List<ThreadFamily> _threadFamilies = ThreadStandards.StandardFamilies;
         private SelectedThreadResult? _selectedThreadFromMain;
         private bool _isApplyingSharedSelection;
@@ -14,9 +9,6 @@ namespace ThreadMate
         public TappingInfoPage()
         {
             InitializeComponent();
-
-            InternalDiagramView.Drawable = _internalDrawable;
-            ExternalDiagramView.Drawable = _externalDrawable;
 
             foreach (var family in _threadFamilies)
             {
@@ -183,11 +175,16 @@ namespace ThreadMate
             ExternalMinorDiameterLabel.Text = $"Minor Diameter (basic): {FormatLength(externalMinorDiameter)}";
             ExternalThreadHeightLabel.Text = $"Thread Height (theoretical): {FormatLength(externalThreadHeight)}";
 
-            _internalDrawable.SetValues(major, internalPitchDiameter, internalMinor, pitch, isImperial, "Internal thread profile");
-            _externalDrawable.SetValues(major, externalPitchDiameter, externalMinorDiameter, pitch, isImperial, "External thread profile");
+            // Generate SVG diagrams
+            var internalSvg = ThreadDiagramSvgGenerator.GenerateInternalThreadDiagram(
+                major, internalPitchDiameter, internalMinor);
+            var internalHtml = $@"<html><body style='margin:0;padding:0;background:transparent;'>{internalSvg}</body></html>";
+            InternalDiagramWebView.Source = new HtmlWebViewSource { Html = internalHtml };
 
-            InternalDiagramView.Invalidate();
-            ExternalDiagramView.Invalidate();
+            var externalSvg = ThreadDiagramSvgGenerator.GenerateExternalThreadDiagram(
+                major, externalPitchDiameter, externalMinorDiameter);
+            var externalHtml = $@"<html><body style='margin:0;padding:0;background:transparent;'>{externalSvg}</body></html>";
+            ExternalDiagramWebView.Source = new HtmlWebViewSource { Html = externalHtml };
         }
 
         private void ApplyResponsiveLayout()
@@ -271,210 +268,6 @@ namespace ThreadMate
         {
             var inches = millimeters / 25.4;
             return $"{millimeters:F3} mm ({inches:F4} in)";
-        }
-
-        private sealed class ThreadProfileDrawable(bool isInternal) : IDrawable
-        {
-            private double _major;
-            private double _pitchDiameter;
-            private double _minor;
-            private double _pitch;
-            private bool _showImperial;
-            private string _title = string.Empty;
-
-            public void SetValues(double major, double pitchDiameter, double minor, double pitch, bool showImperial, string title)
-            {
-                _major = major;
-                _pitchDiameter = pitchDiameter;
-                _minor = minor;
-                _pitch = pitch;
-                _showImperial = showImperial;
-                _title = title;
-            }
-
-            public void Draw(ICanvas canvas, RectF dirtyRect)
-            {
-                var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
-                var textColor = isDark ? Colors.White : Colors.Black;
-                var secondaryText = isDark ? Colors.LightGray : Colors.DarkSlateGray;
-                var majorColor = Color.FromArgb("#FF4444");
-                var pitchColor = Color.FromArgb("#4488FF");
-                var minorColor = Color.FromArgb("#44BB44");
-                var hatchColor = new Color(textColor.Red, textColor.Green, textColor.Blue, 0.35f);
-
-                canvas.Antialias = true;
-                canvas.StrokeColor = textColor;
-                canvas.FontColor = textColor;
-                canvas.StrokeSize = 1.5f;
-
-                var left = 20f;
-                var top = 20f;
-                var diagramWidth = dirtyRect.Width - 40f;
-                var diagramHeight = 140f;
-
-                // Title
-                canvas.FontSize = 14;
-                canvas.FontColor = textColor;
-                canvas.DrawString(isInternal ? "NUT (INTERNAL THREAD)" : "BOLT (EXTERNAL THREAD)", left, top, diagramWidth, 16, HorizontalAlignment.Left, VerticalAlignment.Top);
-
-                var diagramTop = top + 20f;
-                var diagramLeft = left + 20f;
-                var profileWidth = diagramWidth * 0.55f;
-                var profileRight = diagramLeft + profileWidth;
-
-                // Draw reference lines
-                var profileCenterY = diagramTop + 45f;
-                canvas.StrokeSize = 0.5f;
-                canvas.StrokeColor = secondaryText;
-                canvas.StrokeDashPattern = [4, 4];
-                canvas.DrawLine(diagramLeft, profileCenterY, profileRight, profileCenterY);
-                canvas.StrokeDashPattern = null;
-                canvas.StrokeSize = 1.5f;
-                canvas.StrokeColor = textColor;
-
-                // Draw thread profile with consistent spacing
-                const int threadCount = 4;
-                var threadSpacing = profileWidth / threadCount;
-                var profileHeight = 60f;
-                var toothHeight = profileHeight / 2f;
-
-                DrawThreadDiagram(canvas, diagramLeft, profileCenterY - toothHeight, profileWidth, profileHeight, threadCount, hatchColor, textColor, isDark, isInternal);
-
-                // Draw dimension lines and labels
-                var labelLeft = profileRight + 30f;
-                var labelWidth = dirtyRect.Width - labelLeft - 20f;
-                DrawDimensionLabels(canvas, labelLeft, diagramTop, labelWidth, majorColor, pitchColor, minorColor, secondaryText);
-            }
-
-            private void DrawThreadDiagram(ICanvas canvas, float x, float topY, float width, float height, int threadCount, Color hatchColor, Color lineColor, bool isDark, bool isInternal)
-            {
-                var threadSpacing = width / threadCount;
-                var crestY = topY;
-                var rootY = topY + height;
-                var centerY = (crestY + rootY) / 2f;
-
-                // Draw hatching first
-                canvas.StrokeColor = hatchColor;
-                canvas.StrokeSize = 1f;
-                const float hatchSpacing = 5f;
-                const float hatchSlant = 6f;
-
-                for (var i = 0; i < threadCount; i++)
-                {
-                    var threadX = x + (i * threadSpacing);
-                    var threadXEnd = threadX + threadSpacing;
-                    var midX = threadX + (threadSpacing / 2f);
-
-                    if (isInternal)
-                    {
-                        // Hatch in the grooves
-                        for (var hx = threadX - 10f; hx < threadXEnd + 10f; hx += hatchSpacing)
-                        {
-                            canvas.DrawLine(hx, rootY, hx + hatchSlant, centerY);
-                        }
-                    }
-                    else
-                    {
-                        // Hatch in the crests
-                        for (var hx = threadX - 10f; hx < midX + 10f; hx += hatchSpacing)
-                        {
-                            canvas.DrawLine(hx, crestY, hx + hatchSlant, centerY);
-                        }
-                    }
-                }
-
-                // Draw profile outline
-                canvas.StrokeColor = lineColor;
-                canvas.StrokeSize = 1.5f;
-
-                for (var i = 0; i < threadCount; i++)
-                {
-                    var threadX = x + (i * threadSpacing);
-                    var threadXEnd = threadX + threadSpacing;
-                    var midX = threadX + (threadSpacing / 2f);
-
-                    if (isInternal)
-                    {
-                        // Internal: inverted peaks
-                        var prevMidX = i > 0 ? threadX - (threadSpacing / 2f) : threadX;
-                        if (i > 0)
-                        {
-                            canvas.DrawLine(prevMidX, centerY, threadX, crestY);
-                        }
-                        canvas.DrawLine(threadX, crestY, midX, rootY);
-                        canvas.DrawLine(midX, rootY, threadXEnd, crestY);
-                        if (i < threadCount - 1)
-                        {
-                            canvas.DrawLine(threadXEnd, crestY, threadXEnd + (threadSpacing / 2f), centerY);
-                        }
-                    }
-                    else
-                    {
-                        // External: peaks
-                        if (i == 0)
-                        {
-                            canvas.DrawLine(threadX, rootY, threadX, crestY);
-                        }
-                        canvas.DrawLine(threadX, crestY, midX, rootY);
-                        canvas.DrawLine(midX, rootY, threadXEnd, crestY);
-                        if (i == threadCount - 1)
-                        {
-                            canvas.DrawLine(threadXEnd, crestY, threadXEnd, rootY);
-                        }
-                    }
-                }
-
-                // Draw base lines
-                canvas.StrokeColor = lineColor;
-                canvas.StrokeSize = 1.5f;
-                if (isInternal)
-                {
-                    canvas.DrawLine(x, crestY, x + width, crestY);
-                    canvas.DrawLine(x - 5f, crestY, x - 5f, rootY);
-                    canvas.DrawLine(x + width + 5f, crestY, x + width + 5f, rootY);
-                }
-                else
-                {
-                    canvas.DrawLine(x, rootY, x + width, rootY);
-                    canvas.DrawLine(x - 5f, crestY, x - 5f, rootY);
-                    canvas.DrawLine(x + width + 5f, crestY, x + width + 5f, rootY);
-                }
-            }
-
-            private void DrawDimensionLabels(ICanvas canvas, float x, float y, float width, Color majorColor, Color pitchColor, Color minorColor, Color textColor)
-            {
-                canvas.FontSize = 11;
-                var lineHeight = 35f;
-                var currentY = y + 15f;
-
-                // Major Diameter
-                DrawDimensionLine(canvas, x, currentY, majorColor);
-                canvas.FontColor = majorColor;
-                canvas.DrawString($"Major Ø", x + 20f, currentY - 4f, width - 20f, 12, HorizontalAlignment.Left, VerticalAlignment.Top);
-                canvas.DrawString($"{_major:F3} mm", x + 20f, currentY + 8f, width - 20f, 12, HorizontalAlignment.Left, VerticalAlignment.Top);
-                currentY += lineHeight;
-
-                // Pitch Diameter
-                DrawDimensionLine(canvas, x, currentY, pitchColor);
-                canvas.FontColor = pitchColor;
-                canvas.DrawString($"Pitch Ø", x + 20f, currentY - 4f, width - 20f, 12, HorizontalAlignment.Left, VerticalAlignment.Top);
-                canvas.DrawString($"{_pitchDiameter:F3} mm", x + 20f, currentY + 8f, width - 20f, 12, HorizontalAlignment.Left, VerticalAlignment.Top);
-                currentY += lineHeight;
-
-                // Minor Diameter
-                DrawDimensionLine(canvas, x, currentY, minorColor);
-                canvas.FontColor = minorColor;
-                canvas.DrawString($"Minor Ø", x + 20f, currentY - 4f, width - 20f, 12, HorizontalAlignment.Left, VerticalAlignment.Top);
-                canvas.DrawString($"{_minor:F3} mm", x + 20f, currentY + 8f, width - 20f, 12, HorizontalAlignment.Left, VerticalAlignment.Top);
-            }
-
-            private static void DrawDimensionLine(ICanvas canvas, float x, float y, Color color)
-            {
-                canvas.StrokeColor = color;
-                canvas.StrokeSize = 1.5f;
-                canvas.DrawLine(x, y, x + 12f, y);
-                canvas.DrawLine(x + 6f, y - 3f, x + 6f, y + 3f);
-            }
         }
     }
 }
