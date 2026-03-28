@@ -28,5 +28,22 @@ namespace ThreadMate
                 _ => AppTheme.Unspecified
             };
         }
+
+        private async void OnOpenSourceLinkClicked(object? sender, EventArgs e)
+        {
+            if (sender is not Button { CommandParameter: string url } || string.IsNullOrWhiteSpace(url))
+            {
+                return;
+            }
+
+            try
+            {
+                await Launcher.Default.OpenAsync(new Uri(url));
+            }
+            catch
+            {
+                await DisplayAlert("Unable to open link", "The selected source link could not be opened.", "OK");
+            }
+        }
     }
 }

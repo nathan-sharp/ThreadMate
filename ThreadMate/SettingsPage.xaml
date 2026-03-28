@@ -28,6 +28,63 @@
                     </Picker>
                 </VerticalStackLayout>
             </Border>
+
+            <Border Padding="14">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Sources" FontAttributes="Bold" FontSize="18" />
+                    <Label Text="Formulas used in calculations:" FontAttributes="Bold" />
+                    <Label Text="• TPI = 25.4 / Pitch(mm)" />
+                    <Label Text="• Tap Drill = Major Diameter − Pitch" />
+                    <Label Text="• Internal Minor Diameter (basic) = Major − 1.08253 × Pitch" />
+                    <Label Text="• Pitch Diameter (basic) = Major − 0.64952 × Pitch" />
+                    <Label Text="• External Minor Diameter (basic) = Major − 1.22687 × Pitch" />
+                    <Label Text="• Thread Height (theoretical) = 0.8660254 × Pitch" />
+                    <Label Text="• Tensile Stress Area = (π/4) × (d − 0.9382P)²" />
+                    <Label Text="• Proof Load = Stress Area × Proof Stress" />
+                    <Label Text="• Target Clamp Load = Proof Load × Preload %" />
+                    <Label Text="• Tightening Torque = K × Clamp Load × Nominal Diameter" />
+                    <Label Text="• Clearance hole offsets use app defaults (+0.15/+0.30/+0.60 mm metric, +0.003/+0.008/+0.015 in imperial)."
+                           LineBreakMode="WordWrap" />
+
+                    <Label Text="Authoritative standards and references:" FontAttributes="Bold" Margin="0,8,0,0" />
+
+                    <Button Text="ISO metric screw threads (ISO 68-1, ISO 261, ISO 724)"
+                            CommandParameter="https://www.iso.org/search.html?q=ISO%2068-1%20ISO%20261%20ISO%20724"
+                            Clicked="OnOpenSourceLinkClicked" />
+
+                    <Button Text="Unified inch threads UNC/UNF/UNEF (ASME B1.1)"
+                            CommandParameter="https://www.asme.org/search?searchQuery=ASME%20B1.1"
+                            Clicked="OnOpenSourceLinkClicked" />
+
+                    <Button Text="NPT tapered pipe threads (ASME B1.20.1)"
+                            CommandParameter="https://www.asme.org/search?searchQuery=ASME%20B1.20.1"
+                            Clicked="OnOpenSourceLinkClicked" />
+
+                    <Button Text="Whitworth forms BSW/BSF (BS 84)"
+                            CommandParameter="https://www.bsigroup.com/en-GB/search/?q=BS%2084"
+                            Clicked="OnOpenSourceLinkClicked" />
+
+                    <Button Text="BSPP and BSPT pipe threads (ISO 228-1, ISO 7-1)"
+                            CommandParameter="https://www.iso.org/search.html?q=ISO%20228-1%20ISO%207-1"
+                            Clicked="OnOpenSourceLinkClicked" />
+
+                    <Button Text="British Association (BA) thread series (BS 93)"
+                            CommandParameter="https://www.bsigroup.com/en-GB/search/?q=BS%2093"
+                            Clicked="OnOpenSourceLinkClicked" />
+
+                    <Button Text="Metric bolt proof stress classes (ISO 898-1)"
+                            CommandParameter="https://www.iso.org/search.html?q=ISO%20898-1"
+                            Clicked="OnOpenSourceLinkClicked" />
+
+                    <Button Text="Imperial bolt grade properties (SAE J429)"
+                            CommandParameter="https://www.sae.org/standards/content/j429_202005/"
+                            Clicked="OnOpenSourceLinkClicked" />
+
+                    <Button Text="SI and inch-millimeter conversion (NIST SP 811)"
+                            CommandParameter="https://www.nist.gov/pml/special-publication-811"
+                            Clicked="OnOpenSourceLinkClicked" />
+                </VerticalStackLayout>
+            </Border>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
