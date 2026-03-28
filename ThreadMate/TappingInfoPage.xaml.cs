@@ -178,12 +178,15 @@ namespace ThreadMate
             // Generate SVG diagrams
             var internalSvg = ThreadDiagramSvgGenerator.GenerateInternalThreadDiagram(
                 major, internalPitchDiameter, internalMinor);
-            var internalHtml = $@"<html><body style='margin:0;padding:0;background:transparent;'>{internalSvg}</body></html>";
+            var textColor = Application.Current?.RequestedTheme == AppTheme.Dark ? "#FFFFFF" : "#000000";
+            var internalHtml = $@"<html style='background:transparent;'><body style='margin:0;padding:0;background:transparent;color:{textColor};'>{internalSvg}</body></html>";
+            InternalDiagramWebView.BackgroundColor = Colors.Transparent;
             InternalDiagramWebView.Source = new HtmlWebViewSource { Html = internalHtml };
 
             var externalSvg = ThreadDiagramSvgGenerator.GenerateExternalThreadDiagram(
                 major, externalPitchDiameter, externalMinorDiameter);
-            var externalHtml = $@"<html><body style='margin:0;padding:0;background:transparent;'>{externalSvg}</body></html>";
+            var externalHtml = $@"<html style='background:transparent;'><body style='margin:0;padding:0;background:transparent;color:{textColor};'>{externalSvg}</body></html>";
+            ExternalDiagramWebView.BackgroundColor = Colors.Transparent;
             ExternalDiagramWebView.Source = new HtmlWebViewSource { Html = externalHtml };
         }
 
