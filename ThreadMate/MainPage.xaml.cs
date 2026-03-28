@@ -85,7 +85,22 @@ namespace ThreadMate
             var pitchFormatted = threadType.UsesTpi ? $"{pitchOrTpi:F2} TPI" : $"{pitchOrTpi:F3}mm";
             var threadDesignation = closestThread?.Label ?? $"{majorDiameter:F3}{lengthUnit} x {pitchFormatted}";
 
+            var selectedMajorMm = closestThread?.MajorDiameterMm ?? majorDiameterMm;
+            var selectedPitchMm = closestThread?.PitchMm ?? pitchMm;
+            var familyName = ThreadStandards.MapFamilyName(threadType.Name);
+            var family = ThreadStandards.GetFamilyByName(familyName);
+            var isImperial = family?.IsImperial ?? threadType.UsesTpi;
+
+            ThreadSelectionState.Update(new SelectedThreadResult(
+                threadType.Name,
+                familyName,
+                isImperial,
+                threadDesignation,
+                selectedMajorMm,
+                selectedPitchMm));
+
             StatusLabel.Text = $"Calculation complete for {threadType.Name}.";
+
             FinalThreadDesignationLabel.Text = $"Thread: {threadDesignation}";
             PitchDiameterLabel.Text = $"Pitch Diameter: {pitchDiameter:F3} {lengthUnit}";
             MinorDiameterLabel.Text = $"Minor Diameter: {minorDiameter:F3} {lengthUnit}";

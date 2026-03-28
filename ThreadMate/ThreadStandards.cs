@@ -114,28 +114,33 @@ namespace ThreadMate
                 ])
         ];
 
+        public static string MapFamilyName(string familyName) => familyName switch
+        {
+            "ISO Metric (M)" => "ISO Metric",
+            "Unified UNC" => "Imperial UNC",
+            "Unified UNF" => "Imperial UNF",
+            "Unified UNEF" => "Unified UNEF",
+            "Whitworth BSW" => "Whitworth BSW",
+            "Whitworth BSF" => "Whitworth BSF",
+            "BSPP (G)" => "BSPP (G)",
+            "BSPT (R)" => "BSPT (R)",
+            "NPT" => "NPT",
+            "BA" => "BA",
+            _ => familyName
+        };
+
+        public static ThreadFamily? GetFamilyByName(string familyName)
+        {
+            var mappedFamilyName = MapFamilyName(familyName);
+            return StandardFamilies.FirstOrDefault(f => f.Name == mappedFamilyName);
+        }
+
         /// <summary>
         /// Finds the closest standard thread size for the given family name, major diameter, and pitch.
         /// </summary>
         public static ThreadSize? FindClosestThreadSize(string familyName, double majorDiameterMm, double pitchMm)
         {
-            // Map MainPage thread type names to ThreadStandards names
-            var mappedFamilyName = familyName switch
-            {
-                "ISO Metric (M)" => "ISO Metric",
-                "Unified UNC" => "Imperial UNC",
-                "Unified UNF" => "Imperial UNF",
-                "Unified UNEF" => "Unified UNEF",
-                "Whitworth BSW" => "Whitworth BSW",
-                "Whitworth BSF" => "Whitworth BSF",
-                "BSPP (G)" => "BSPP (G)",
-                "BSPT (R)" => "BSPT (R)",
-                "NPT" => "NPT",
-                "BA" => "BA",
-                _ => familyName  // Fallback to original name if no mapping
-            };
-
-            var family = StandardFamilies.FirstOrDefault(f => f.Name == mappedFamilyName);
+            var family = GetFamilyByName(familyName);
             if (family == null || family.Sizes.Count == 0)
                 return null;
 

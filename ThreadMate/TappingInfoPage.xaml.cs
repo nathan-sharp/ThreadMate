@@ -4,53 +4,12 @@ namespace ThreadMate
 {
     public partial class TappingInfoPage : ContentPage
     {
-        private sealed record ThreadSize(string Label, double MajorDiameterMm, double PitchMm);
-
-        private sealed record ThreadFamily(string Name, bool IsImperial, IReadOnlyList<ThreadSize> Sizes);
-
         private readonly ThreadProfileDrawable _internalDrawable = new(true);
         private readonly ThreadProfileDrawable _externalDrawable = new(false);
 
-        private readonly List<ThreadFamily> _threadFamilies =
-        [
-            new(
-                "ISO Metric",
-                false,
-                [
-                    new("M3 x 0.5", 3.0, 0.5),
-                    new("M4 x 0.7", 4.0, 0.7),
-                    new("M5 x 0.8", 5.0, 0.8),
-                    new("M6 x 1.0", 6.0, 1.0),
-                    new("M8 x 1.25", 8.0, 1.25),
-                    new("M10 x 1.5", 10.0, 1.5),
-                    new("M12 x 1.75", 12.0, 1.75),
-                    new("M16 x 2.0", 16.0, 2.0)
-                ]),
-            new(
-                "Imperial UNC",
-                true,
-                [
-                    new("#4-40 UNC", 0.112 * 25.4, 25.4 / 40.0),
-                    new("#6-32 UNC", 0.138 * 25.4, 25.4 / 32.0),
-                    new("#8-32 UNC", 0.164 * 25.4, 25.4 / 32.0),
-                    new("#10-24 UNC", 0.190 * 25.4, 25.4 / 24.0),
-                    new("1/4-20 UNC", 0.250 * 25.4, 25.4 / 20.0),
-                    new("5/16-18 UNC", 0.3125 * 25.4, 25.4 / 18.0),
-                    new("3/8-16 UNC", 0.375 * 25.4, 25.4 / 16.0),
-                    new("1/2-13 UNC", 0.500 * 25.4, 25.4 / 13.0)
-                ]),
-            new(
-                "Imperial UNF",
-                true,
-                [
-                    new("#10-32 UNF", 0.190 * 25.4, 25.4 / 32.0),
-                    new("1/4-28 UNF", 0.250 * 25.4, 25.4 / 28.0),
-                    new("5/16-24 UNF", 0.3125 * 25.4, 25.4 / 24.0),
-                    new("3/8-24 UNF", 0.375 * 25.4, 25.4 / 24.0),
-                    new("7/16-20 UNF", 0.4375 * 25.4, 25.4 / 20.0),
-                    new("1/2-20 UNF", 0.500 * 25.4, 25.4 / 20.0)
-                ])
-        ];
+        private readonly List<ThreadFamily> _threadFamilies = ThreadStandards.StandardFamilies;
+        private SelectedThreadResult? _selectedThreadFromMain;
+        private bool _isApplyingSharedSelection;
 
         public TappingInfoPage()
         {
@@ -71,17 +30,94 @@ namespace ThreadMate
             ApplyResponsiveLayout();
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            ThreadSelectionState.SelectionChanged += OnSharedThreadSelectionChanged;
+            ApplySharedSelection();
+        }
+
+        protected override void OnDisappearing()
+        {
+            ThreadSelectionState.SelectionChanged -= OnSharedThreadSelectionChanged;
+            base.OnDisappearing();
+        }
+
         private ThreadFamily SelectedFamily => _threadFamilies[Math.Max(ThreadTypePicker.SelectedIndex, 0)];
 
         private ThreadSize SelectedSize => SelectedFamily.Sizes[Math.Max(ThreadSizePicker.SelectedIndex, 0)];
 
+        private void OnSharedThreadSelectionChanged(SelectedThreadResult result)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                _selectedThreadFromMain = result;
+                ApplySharedSelection();
+            });
+        }
+
+        private void ApplySharedSelection()
+        {
+            if (ThreadSelectionState.Current is null)
+            {
+                return;
+            }
+
+            _selectedThreadFromMain = ThreadSelectionState.Current;
+            var result = _selectedThreadFromMain;
+            if (result is null)
+            {
+                return;
+            }
+
+            _isApplyingSharedSelection = true;
+            try
+            {
+                var familyIndex = _threadFamilies.FindIndex(f => f.Name == result.FamilyName);
+                if (familyIndex >= 0 && ThreadTypePicker.SelectedIndex != familyIndex)
+                {
+                    ThreadTypePicker.SelectedIndex = familyIndex;
+                    PopulateSizes();
+                }
+                else
+                {
+                    PopulateSizes();
+                }
+
+                var sizeIndex = SelectedFamily.Sizes
+                    .Select((size, index) => new { size, index })
+                    .FirstOrDefault(x => x.size.Label == result.Label)?.index ?? -1;
+
+                if (sizeIndex >= 0)
+                {
+                    ThreadSizePicker.SelectedIndex = sizeIndex;
+                }
+
+                UpdateResults();
+            }
+            finally
+            {
+                _isApplyingSharedSelection = false;
+            }
+        }
+
         private void OnThreadTypeChanged(object? sender, EventArgs e)
         {
+            if (!_isApplyingSharedSelection)
+            {
+                _selectedThreadFromMain = null;
+            }
+
             PopulateSizes();
         }
 
         private void OnThreadSizeChanged(object? sender, EventArgs e)
         {
+            if (!_isApplyingSharedSelection)
+            {
+                _selectedThreadFromMain = null;
+            }
+
             UpdateResults();
         }
 
@@ -105,7 +141,9 @@ namespace ThreadMate
             }
 
             var family = SelectedFamily;
-            var size = SelectedSize;
+            var size = _selectedThreadFromMain is not null
+                ? new ThreadSize(_selectedThreadFromMain.Label, _selectedThreadFromMain.MajorDiameterMm, _selectedThreadFromMain.PitchMm)
+                : SelectedSize;
 
             var major = size.MajorDiameterMm;
             var pitch = size.PitchMm;
@@ -116,14 +154,15 @@ namespace ThreadMate
             var fullThreadDepth = 1.08253 * pitch;
             var threadPercent = Math.Clamp((major - tapDrill) / fullThreadDepth * 100.0, 0.0, 100.0);
 
-            var (clearanceClose, clearanceNormal, clearanceLoose) = GetClearanceHoles(major, family.IsImperial);
+            var isImperial = _selectedThreadFromMain?.IsImperial ?? family.IsImperial;
+            var (clearanceClose, clearanceNormal, clearanceLoose) = GetClearanceHoles(major, isImperial);
 
             var internalPitchDiameter = major - (0.64952 * pitch);
             var externalPitchDiameter = major - (0.64952 * pitch);
             var externalMinorDiameter = major - (1.22687 * pitch);
             var externalThreadHeight = 0.8660254 * pitch;
 
-            SelectedThreadSummaryLabel.Text = family.IsImperial
+            SelectedThreadSummaryLabel.Text = isImperial
                 ? $"{size.Label}   ({tpi:F1} TPI)"
                 : size.Label;
 
@@ -137,15 +176,15 @@ namespace ThreadMate
             ClearanceLooseLabel.Text = $"Clearance Hole (Loose): {FormatLength(clearanceLoose)}";
 
             ExternalMajorLabel.Text = $"Major Diameter (nominal): {FormatLength(major)}";
-            ExternalPitchLabel.Text = family.IsImperial
+            ExternalPitchLabel.Text = isImperial
                 ? $"Pitch: {pitch:F3} mm ({tpi:F1} TPI)"
                 : $"Pitch: {pitch:F3} mm";
             ExternalPitchDiameterLabel.Text = $"Pitch Diameter (basic): {FormatLength(externalPitchDiameter)}";
             ExternalMinorDiameterLabel.Text = $"Minor Diameter (basic): {FormatLength(externalMinorDiameter)}";
             ExternalThreadHeightLabel.Text = $"Thread Height (theoretical): {FormatLength(externalThreadHeight)}";
 
-            _internalDrawable.SetValues(major, internalPitchDiameter, internalMinor, pitch, family.IsImperial, "Internal thread profile");
-            _externalDrawable.SetValues(major, externalPitchDiameter, externalMinorDiameter, pitch, family.IsImperial, "External thread profile");
+            _internalDrawable.SetValues(major, internalPitchDiameter, internalMinor, pitch, isImperial, "Internal thread profile");
+            _externalDrawable.SetValues(major, externalPitchDiameter, externalMinorDiameter, pitch, isImperial, "External thread profile");
 
             InternalDiagramView.Invalidate();
             ExternalDiagramView.Invalidate();

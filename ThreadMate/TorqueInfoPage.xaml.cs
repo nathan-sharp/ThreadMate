@@ -4,63 +4,25 @@ namespace ThreadMate
 {
     public partial class TorqueInfoPage : ContentPage
     {
-        private sealed record ThreadSize(string Label, double MajorDiameterMm, double PitchMm);
-
-        private sealed record ThreadFamily(string Name, bool IsImperial, IReadOnlyList<ThreadSize> Sizes, IReadOnlyList<GradeOption> Grades);
-
         private sealed record GradeOption(string Name, double ProofStressMpa);
 
         private sealed record ConditionOption(string Name, double NutFactorK);
 
-        private readonly List<ThreadFamily> _threadFamilies =
+        private readonly List<ThreadFamily> _threadFamilies = ThreadStandards.StandardFamilies;
+
+        private readonly List<GradeOption> _metricGrades =
         [
-            new(
-                "ISO Metric",
-                false,
-                [
-                    new("M5 x 0.8", 5.0, 0.8),
-                    new("M6 x 1.0", 6.0, 1.0),
-                    new("M8 x 1.25", 8.0, 1.25),
-                    new("M10 x 1.5", 10.0, 1.5),
-                    new("M12 x 1.75", 12.0, 1.75),
-                    new("M16 x 2.0", 16.0, 2.0)
-                ],
-                [
-                    new("Class 8.8", 600),
-                    new("Class 10.9", 830),
-                    new("Class 12.9", 970),
-                    new("A2-70 Stainless", 450)
-                ]),
-            new(
-                "Imperial UNC",
-                true,
-                [
-                    new("#10-24 UNC", 0.190 * 25.4, 25.4 / 24.0),
-                    new("1/4-20 UNC", 0.250 * 25.4, 25.4 / 20.0),
-                    new("5/16-18 UNC", 0.3125 * 25.4, 25.4 / 18.0),
-                    new("3/8-16 UNC", 0.375 * 25.4, 25.4 / 16.0),
-                    new("1/2-13 UNC", 0.500 * 25.4, 25.4 / 13.0)
-                ],
-                [
-                    new("Grade 5", 85 * 6.89476),
-                    new("Grade 8", 120 * 6.89476),
-                    new("18-8 Stainless", 65 * 6.89476)
-                ]),
-            new(
-                "Imperial UNF",
-                true,
-                [
-                    new("#10-32 UNF", 0.190 * 25.4, 25.4 / 32.0),
-                    new("1/4-28 UNF", 0.250 * 25.4, 25.4 / 28.0),
-                    new("5/16-24 UNF", 0.3125 * 25.4, 25.4 / 24.0),
-                    new("3/8-24 UNF", 0.375 * 25.4, 25.4 / 24.0),
-                    new("1/2-20 UNF", 0.500 * 25.4, 25.4 / 20.0)
-                ],
-                [
-                    new("Grade 5", 85 * 6.89476),
-                    new("Grade 8", 120 * 6.89476),
-                    new("18-8 Stainless", 65 * 6.89476)
-                ])
+            new("Class 8.8", 600),
+            new("Class 10.9", 830),
+            new("Class 12.9", 970),
+            new("A2-70 Stainless", 450)
+        ];
+
+        private readonly List<GradeOption> _imperialGrades =
+        [
+            new("Grade 5", 85 * 6.89476),
+            new("Grade 8", 120 * 6.89476),
+            new("18-8 Stainless", 65 * 6.89476)
         ];
 
         private readonly List<ConditionOption> _conditions =
@@ -70,6 +32,9 @@ namespace ThreadMate
             new("Lubricated", 0.15),
             new("Anti-Seize", 0.12)
         ];
+
+        private SelectedThreadResult? _selectedThreadFromMain;
+        private bool _isApplyingSharedSelection;
 
         public TorqueInfoPage()
         {
@@ -93,21 +58,100 @@ namespace ThreadMate
             ApplyResponsiveLayout();
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            ThreadSelectionState.SelectionChanged += OnSharedThreadSelectionChanged;
+            ApplySharedSelection();
+        }
+
+        protected override void OnDisappearing()
+        {
+            ThreadSelectionState.SelectionChanged -= OnSharedThreadSelectionChanged;
+            base.OnDisappearing();
+        }
+
         private ThreadFamily SelectedFamily => _threadFamilies[Math.Max(ThreadTypePicker.SelectedIndex, 0)];
 
         private ThreadSize SelectedSize => SelectedFamily.Sizes[Math.Max(ThreadSizePicker.SelectedIndex, 0)];
 
-        private GradeOption SelectedGrade => SelectedFamily.Grades[Math.Max(GradePicker.SelectedIndex, 0)];
+        private IReadOnlyList<GradeOption> AvailableGrades => ((_selectedThreadFromMain?.IsImperial ?? SelectedFamily.IsImperial) ? _imperialGrades : _metricGrades);
+
+        private GradeOption SelectedGrade => AvailableGrades[Math.Max(GradePicker.SelectedIndex, 0)];
 
         private ConditionOption SelectedCondition => _conditions[Math.Max(ConditionPicker.SelectedIndex, 0)];
 
+        private void OnSharedThreadSelectionChanged(SelectedThreadResult result)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                _selectedThreadFromMain = result;
+                ApplySharedSelection();
+            });
+        }
+
+        private void ApplySharedSelection()
+        {
+            if (ThreadSelectionState.Current is null)
+            {
+                return;
+            }
+
+            _selectedThreadFromMain = ThreadSelectionState.Current;
+            var result = _selectedThreadFromMain;
+            if (result is null)
+            {
+                return;
+            }
+
+            _isApplyingSharedSelection = true;
+            try
+            {
+                var familyIndex = _threadFamilies.FindIndex(f => f.Name == result.FamilyName);
+                if (familyIndex >= 0 && ThreadTypePicker.SelectedIndex != familyIndex)
+                {
+                    ThreadTypePicker.SelectedIndex = familyIndex;
+                    PopulateDependentPickers();
+                }
+                else
+                {
+                    PopulateDependentPickers();
+                }
+
+                var sizeIndex = SelectedFamily.Sizes
+                    .Select((size, index) => new { size, index })
+                    .FirstOrDefault(x => x.size.Label == result.Label)?.index ?? -1;
+
+                if (sizeIndex >= 0)
+                {
+                    ThreadSizePicker.SelectedIndex = sizeIndex;
+                }
+
+                CalculateTorque();
+            }
+            finally
+            {
+                _isApplyingSharedSelection = false;
+            }
+        }
+
         private void OnThreadTypeChanged(object? sender, EventArgs e)
         {
+            if (!_isApplyingSharedSelection)
+            {
+                _selectedThreadFromMain = null;
+            }
+
             PopulateDependentPickers();
         }
 
         private void OnAnyInputChanged(object? sender, EventArgs e)
         {
+            if (!_isApplyingSharedSelection && sender == ThreadSizePicker)
+            {
+                _selectedThreadFromMain = null;
+            }
+
             CalculateTorque();
         }
 
@@ -126,7 +170,7 @@ namespace ThreadMate
                 ThreadSizePicker.Items.Add(size.Label);
             }
 
-            foreach (var grade in SelectedFamily.Grades)
+            foreach (var grade in AvailableGrades)
             {
                 GradePicker.Items.Add(grade.Name);
             }
@@ -150,10 +194,12 @@ namespace ThreadMate
                 return;
             }
 
-            var size = SelectedSize;
+            var size = _selectedThreadFromMain is not null
+                ? new ThreadSize(_selectedThreadFromMain.Label, _selectedThreadFromMain.MajorDiameterMm, _selectedThreadFromMain.PitchMm)
+                : SelectedSize;
             var grade = SelectedGrade;
             var condition = SelectedCondition;
-            var family = SelectedFamily;
+            var isImperial = _selectedThreadFromMain?.IsImperial ?? SelectedFamily.IsImperial;
 
             var stressAreaMm2 = (Math.PI / 4.0) * Math.Pow(size.MajorDiameterMm - (0.9382 * size.PitchMm), 2);
             var proofLoadN = stressAreaMm2 * grade.ProofStressMpa;
@@ -174,7 +220,7 @@ namespace ThreadMate
             TorqueRangeLabel.Text = $"Suggested Working Range (±10%): {lowNm:F1} to {highNm:F1} N·m";
 
             NominalDiameterLabel.Text = $"Nominal Diameter: {size.MajorDiameterMm:F3} mm ({majorIn:F4} in)";
-            PitchLabel.Text = family.IsImperial
+            PitchLabel.Text = isImperial
                 ? $"Pitch: {size.PitchMm:F3} mm ({tpi:F1} TPI)"
                 : $"Pitch: {size.PitchMm:F3} mm";
             StressAreaLabel.Text = $"Tensile Stress Area: {stressAreaMm2:F2} mm²";
