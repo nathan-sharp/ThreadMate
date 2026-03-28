@@ -1,3 +1,5 @@
+using ThreadMate.Services;
+
 namespace ThreadMate
 {
     public partial class SettingsPage : ContentPage
@@ -12,6 +14,9 @@ namespace ThreadMate
                 AppTheme.Dark => 2,
                 _ => 0
             };
+
+            // Load banner ad
+            AdMobService.LoadBannerAd("SettingsPageBanner", AdContainerGrid);
         }
 
         private void OnThemeSelectedIndexChanged(object? sender, EventArgs e)

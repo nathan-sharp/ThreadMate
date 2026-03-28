@@ -1,3 +1,5 @@
+using ThreadMate.Services;
+
 namespace ThreadMate
 {
     public partial class TappingInfoPage : ContentPage
@@ -20,6 +22,9 @@ namespace ThreadMate
 
             SizeChanged += (_, _) => ApplyResponsiveLayout();
             ApplyResponsiveLayout();
+
+            // Load banner ad
+            AdMobService.LoadBannerAd("TappingInfoPageBanner", AdContainerGrid);
         }
 
         protected override void OnAppearing()
@@ -208,9 +213,9 @@ namespace ThreadMate
                     new RowDefinition { Height = GridLength.Auto }
                 ];
 
-                Grid.SetRow(TappingHeaderCard, 0);
-                Grid.SetColumn(TappingHeaderCard, 0);
-                Grid.SetColumnSpan(TappingHeaderCard, 2);
+                Grid.SetRow(AdContainerGrid, 0);
+                Grid.SetColumn(AdContainerGrid, 0);
+                Grid.SetColumnSpan(AdContainerGrid, 2);
 
                 Grid.SetRow(SelectorCard, 1);
                 Grid.SetColumn(SelectorCard, 0);
@@ -235,9 +240,9 @@ namespace ThreadMate
                     new RowDefinition { Height = GridLength.Auto }
                 ];
 
-                Grid.SetRow(TappingHeaderCard, 0);
-                Grid.SetColumn(TappingHeaderCard, 0);
-                Grid.SetColumnSpan(TappingHeaderCard, 1);
+                Grid.SetRow(AdContainerGrid, 0);
+                Grid.SetColumn(AdContainerGrid, 0);
+                Grid.SetColumnSpan(AdContainerGrid, 1);
 
                 Grid.SetRow(SelectorCard, 1);
                 Grid.SetColumn(SelectorCard, 0);

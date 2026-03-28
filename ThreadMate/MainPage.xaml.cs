@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using ThreadMate.Services;
 
 namespace ThreadMate
 {
@@ -43,6 +44,9 @@ namespace ThreadMate
 
             SizeChanged += (_, _) => ApplyResponsiveLayout();
             ApplyResponsiveLayout();
+
+            // Load banner ad
+            AdMobService.LoadBannerAd("MainPageBanner", AdContainerGrid);
         }
 
         private ThreadType SelectedThreadType => _threadTypes[Math.Max(ThreadTypePicker.SelectedIndex, 0)];
@@ -117,7 +121,6 @@ namespace ThreadMate
         private void ApplyThreadTypeUi()
         {
             var threadType = SelectedThreadType;
-            CalculatorModeLabel.Text = $"Bolt Thread Calculator ({threadType.Name} External Thread)";
 
             MajorDiameterInputLabel.Text = $"Major Diameter ({threadType.LengthUnit})";
             MajorDiameterEntry.Placeholder = threadType.LengthUnit == "in" ? "e.g. 0.5" : "e.g. 10";
@@ -148,9 +151,9 @@ namespace ThreadMate
                     new RowDefinition { Height = GridLength.Auto }
                 ];
 
-                Grid.SetRow(HeaderCard, 0);
-                Grid.SetColumn(HeaderCard, 0);
-                Grid.SetColumnSpan(HeaderCard, 2);
+                Grid.SetRow(AdContainerGrid, 0);
+                Grid.SetColumn(AdContainerGrid, 0);
+                Grid.SetColumnSpan(AdContainerGrid, 2);
 
                 Grid.SetRow(InputCard, 1);
                 Grid.SetColumn(InputCard, 0);
@@ -170,9 +173,9 @@ namespace ThreadMate
                     new RowDefinition { Height = GridLength.Auto }
                 ];
 
-                Grid.SetRow(HeaderCard, 0);
-                Grid.SetColumn(HeaderCard, 0);
-                Grid.SetColumnSpan(HeaderCard, 1);
+                Grid.SetRow(AdContainerGrid, 0);
+                Grid.SetColumn(AdContainerGrid, 0);
+                Grid.SetColumnSpan(AdContainerGrid, 1);
 
                 Grid.SetRow(InputCard, 1);
                 Grid.SetColumn(InputCard, 0);

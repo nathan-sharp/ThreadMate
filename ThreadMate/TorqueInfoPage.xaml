@@ -19,14 +19,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Border x:Name="TorqueHeaderCard" Grid.Row="0" BackgroundColor="Black" StrokeThickness="0" Padding="14">
-                <Label Text="Banner Ad Placeholder"
-                       FontSize="22"
-                       FontAttributes="Bold"
-                       TextColor="White"
-                       HorizontalOptions="Center"
-                       HorizontalTextAlignment="Center" />
-            </Border>
+            <Grid x:Name="AdContainerGrid" Grid.Row="0" HeightRequest="60" Margin="0,0,0,10" />
 
             <Border x:Name="TorqueInputCard" Grid.Row="1" Padding="14">
                 <VerticalStackLayout Spacing="10">

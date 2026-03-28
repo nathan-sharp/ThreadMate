@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
+using ThreadMate.Services;
 #if ANDROID
 using Android.Graphics;
 using Android.Views;
@@ -21,7 +22,9 @@ namespace ThreadMate
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                     fonts.AddFont("SpaceMono-Regular.ttf", "SpaceMonoRegular");
                     fonts.AddFont("SpaceMono-Bold.ttf", "SpaceMonoBold");
-                });
+                })
+                // Register AdMob Service
+                .Services.AddSingleton<AdMobService>();
 
 #if ANDROID
             builder.ConfigureLifecycleEvents(events =>
