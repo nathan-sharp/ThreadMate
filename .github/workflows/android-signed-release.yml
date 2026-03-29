@@ -6,6 +6,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
   build-android:
     runs-on: windows-latest
@@ -45,8 +48,22 @@ jobs:
             -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" `
             -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
 
+      - name: Locate AAB output
+        shell: pwsh
+        run: |
+          $aab = Get-ChildItem "ThreadMate/bin/Release/net10.0-android" -Recurse -Filter *.aab | Select-Object -First 1 -ExpandProperty FullName
+          if (-not $aab) { throw "No .aab file found." }
+          "AAB_PATH=$aab" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: threadmate-signed-aab
-          path: ThreadMate/bin/Release/net10.0-android/**/*.aab
+          path: ${{ env.AAB_PATH }}
+
+      - name: Create GitHub Release and upload AAB
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.AAB_PATH }}
+          generate_release_notes: true
