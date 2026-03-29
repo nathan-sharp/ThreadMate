@@ -49,7 +49,7 @@ namespace ThreadMate
             }
             catch
             {
-                await DisplayAlert("Unable to open link", "The selected source link could not be opened.", "OK");
+                await DisplayAlertAsync("Unable to open link", "The selected source link could not be opened.", "OK");
             }
         }
     }
