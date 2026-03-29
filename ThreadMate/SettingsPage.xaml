@@ -23,6 +23,13 @@
             </Border>
 
             <Border Padding="14">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="App Version" FontAttributes="Bold" />
+                    <Label x:Name="AppVersionLabel" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Padding="14">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Sources" FontAttributes="Bold" FontSize="18" />
                     <Label Text="Formulas used in calculations:" FontAttributes="Bold" />

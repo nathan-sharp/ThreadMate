@@ -15,6 +15,8 @@ namespace ThreadMate
                 _ => 0
             };
 
+            AppVersionLabel.Text = $"{AppInfo.Current.VersionString} ({AppInfo.Current.BuildString})";
+
             // Load banner ad
             AdMobService.LoadBannerAd("SettingsPageBanner", AdContainerGrid);
         }
