@@ -69,3 +69,46 @@ jobs:
         with:
           files: ${{ env.AAB_PATH }}
           generate_release_notes: true
+
+  build-windows:
+    runs-on: windows-latest
+    needs: build-android
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install MAUI Windows workload
+        run: dotnet workload install maui-windows
+
+      - name: Restore (Windows only)
+        run: dotnet restore ThreadMate/ThreadMate.csproj -p:TargetFramework=net10.0-windows10.0.19041.0 -p:TargetFrameworks=net10.0-windows10.0.19041.0
+
+      - name: Publish Windows app
+        run: dotnet publish ThreadMate/ThreadMate.csproj --no-restore -f net10.0-windows10.0.19041.0 -c Release -r win10-x64 -p:WindowsPackageType=None -p:SelfContained=true
+
+      - name: Package Windows output
+        shell: pwsh
+        run: |
+          $publishDir = "ThreadMate/bin/Release/net10.0-windows10.0.19041.0/win10-x64/publish"
+          if (-not (Test-Path $publishDir)) { throw "Windows publish output not found at $publishDir" }
+          $zipPath = Join-Path $env:RUNNER_TEMP "ThreadMate-windows-win10-x64.zip"
+          Compress-Archive -Path "$publishDir/*" -DestinationPath $zipPath -Force
+          "WINDOWS_ZIP_PATH=$zipPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: threadmate-windows-win10-x64
+          path: ${{ env.WINDOWS_ZIP_PATH }}
+
+      - name: Upload Windows asset to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.WINDOWS_ZIP_PATH }}

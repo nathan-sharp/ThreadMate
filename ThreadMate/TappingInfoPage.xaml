@@ -18,7 +18,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Grid x:Name="AdContainerGrid" Grid.Row="0" HeightRequest="60" Margin="0,0,0,10" />
+            <Grid x:Name="AdContainerGrid" Grid.Row="0" HeightRequest="60" Margin="-20,-20,-20,10" />
 
             <Border x:Name="SelectorCard" Grid.Row="1" Padding="14">
                 <VerticalStackLayout Spacing="10">

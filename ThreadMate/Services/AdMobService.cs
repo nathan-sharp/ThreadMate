@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using ThreadMate.Controls;
+using Microsoft.Maui.Controls.Shapes;
 
 namespace ThreadMate.Services
 {
@@ -12,9 +14,9 @@ namespace ThreadMate.Services
 
         // Google AdMob Test Ad Unit IDs (safe for development)
         // These IDs are provided by Google for testing purposes
-        private const string AndroidBannerTestId = "ca-app-pub-8060016937826958/6363913816";
-        private const string iOSBannerTestId = "ca-app-pub-3940256099942544/2934735716";
-        private const string WindowsBannerTestId = "ca-app-pub-3940256099942544/6300978111";
+        private const string AndroidBannerAdUnitId = "ca-app-pub-3940256099942544/6300978111";
+        private const string iOSBannerAdUnitId = "ca-app-pub-3940256099942544/2934735716";
+        private const string WindowsBannerAdUnitId = "ca-app-pub-3940256099942544/6300978111";
 
         /// <summary>
         /// Get the appropriate banner ad unit ID based on platform
@@ -22,13 +24,13 @@ namespace ThreadMate.Services
         private static string GetBannerAdUnitId()
         {
 #if __ANDROID__
-            return AndroidBannerTestId;
+            return AndroidBannerAdUnitId;
 #elif __IOS__
-            return iOSBannerTestId;
+            return iOSBannerAdUnitId;
 #elif WINDOWS
-            return WindowsBannerTestId;
+            return WindowsBannerAdUnitId;
 #else
-            return AndroidBannerTestId;
+            return AndroidBannerAdUnitId;
 #endif
         }
 
@@ -45,11 +47,10 @@ namespace ThreadMate.Services
                 // Store the container for later reference
                 _adContainers[containerName] = container;
 
-                // Create a placeholder banner that simulates an ad
-                // In production, this would use the actual Google Mobile Ads SDK
-                CreateBannerPlaceholder(containerName, container);
+                // Create the ad content (real ad or placeholder)
+                CreateBannerContent(container);
 
-                Debug.WriteLine($"[AdMob] Banner ad loaded for container: {containerName}");
+                Debug.WriteLine($"[AdMob] Banner initialized for container: {containerName}");
             }
             catch (Exception ex)
             {
@@ -58,28 +59,62 @@ namespace ThreadMate.Services
         }
 
         /// <summary>
-        /// Creates a visual placeholder for the banner ad.
-        /// In production, replace with actual Google Mobile Ads SDK implementation.
+        /// Creates the banner content - either real AdMob ad (Android) or placeholder (iOS, Windows).
         /// </summary>
-        private static void CreateBannerPlaceholder(string containerName, View container)
+        private static void CreateBannerContent(View container)
         {
-            // Clear existing content
             if (container is Grid grid)
             {
                 grid.Children.Clear();
-            }
-            else if (container is VerticalStackLayout vsl)
-            {
-                vsl.Children.Clear();
+#if ANDROID
+                var wrapper = new Grid();
+                wrapper.Children.Add(CreateBannerPlaceholder());
+                wrapper.Children.Add(new AdMobBannerView
+                {
+                    AdUnitId = GetBannerAdUnitId(),
+                    HeightRequest = 50,
+                    HorizontalOptions = LayoutOptions.Fill,
+                    VerticalOptions = LayoutOptions.Center
+                });
+                grid.Children.Add(wrapper);
+#else
+                grid.Children.Add(CreateBannerPlaceholder());
+#endif
+                return;
             }
 
-            // Create a banner-sized placeholder
-            var bannerContainer = new Frame
+            if (container is VerticalStackLayout vsl)
             {
-                BorderColor = Colors.Gray,
+                vsl.Children.Clear();
+#if ANDROID
+                var wrapper = new Grid();
+                wrapper.Children.Add(CreateBannerPlaceholder());
+                wrapper.Children.Add(new AdMobBannerView
+                {
+                    AdUnitId = GetBannerAdUnitId(),
+                    HeightRequest = 50,
+                    HorizontalOptions = LayoutOptions.Fill,
+                    VerticalOptions = LayoutOptions.Center
+                });
+                vsl.Children.Add(wrapper);
+#else
+                vsl.Children.Add(CreateBannerPlaceholder());
+#endif
+            }
+        }
+
+        /// <summary>
+        /// Creates a visual placeholder for the banner ad.
+        /// In production, replace with actual Google Mobile Ads SDK implementation.
+        /// </summary>
+        private static View CreateBannerPlaceholder()
+        {
+            var bannerContainer = new Border
+            {
+                Stroke = Colors.Gray,
                 BackgroundColor = Colors.White,
-                CornerRadius = 4,
-                HasShadow = false,
+                StrokeShape = new RoundRectangle { CornerRadius = 4 },
+                StrokeThickness = 1,
                 Padding = 8,
                 Margin = 0,
                 HeightRequest = 50
@@ -96,16 +131,7 @@ namespace ThreadMate.Services
             };
 
             bannerContainer.Content = bannerLabel;
-
-            // Add to the container
-            if (container is Grid grid2)
-            {
-                grid2.Add(bannerContainer);
-            }
-            else if (container is VerticalStackLayout vsl2)
-            {
-                vsl2.Add(bannerContainer);
-            }
+            return bannerContainer;
         }
 
         /// <summary>

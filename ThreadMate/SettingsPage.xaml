@@ -5,7 +5,7 @@
              Title="Settings">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="14">
-            <Grid x:Name="AdContainerGrid" HeightRequest="60" />
+            <Grid x:Name="AdContainerGrid" HeightRequest="60" Margin="-20,-20,-20,10" />
 
             <Border Padding="14">
                 <VerticalStackLayout Spacing="10">

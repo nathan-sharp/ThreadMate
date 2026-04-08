@@ -5,6 +5,8 @@ using ThreadMate.Services;
 using Android.Graphics;
 using Android.Views;
 using Android.Widget;
+using ThreadMate.Controls;
+using ThreadMate.Platforms.Android.Handlers;
 #endif
 
 namespace ThreadMate
@@ -27,6 +29,11 @@ namespace ThreadMate
                 .Services.AddSingleton<AdMobService>();
 
 #if ANDROID
+            builder.ConfigureMauiHandlers(handlers =>
+            {
+                handlers.AddHandler(typeof(AdMobBannerView), typeof(AdMobBannerViewHandler));
+            });
+
             builder.ConfigureLifecycleEvents(events =>
             {
                 events.AddAndroid(android =>
@@ -55,9 +62,9 @@ namespace ThreadMate
         }
 
 #if ANDROID
-        private static void ApplySpaceMonoToAndroidViewTree(Android.Views.View? root, Android.Content.Res.AssetManager assets)
+        private static void ApplySpaceMonoToAndroidViewTree(Android.Views.View? root, Android.Content.Res.AssetManager? assets)
         {
-            if (root is null)
+            if (root is null || assets is null)
             {
                 return;
             }
