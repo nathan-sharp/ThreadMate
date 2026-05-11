@@ -29,6 +29,10 @@
                 </VerticalStackLayout>
             </Border>
 
+            <Button Text="Send Feedback"
+                    CommandParameter="https://forms.gle/34YXtk6BsyPG7HMq8"
+                    Clicked="OnOpenSourceLinkClicked" />
+
             <Border Padding="14">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Sources" FontAttributes="Bold" FontSize="18" />
